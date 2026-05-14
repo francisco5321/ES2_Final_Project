@@ -1,0 +1,192 @@
+Matriz de Rastreabilidade - Sprint 1
+GREENHERB
+Tema: Autenticacao e controlo de acesso
+
+
+Resumo
+
+- Area funcional: autenticacao e controlo de acesso
+- Endpoints cobertos:
+  POST /auth/register
+  POST /auth/login
+  POST /auth/refresh
+  GET /users/me
+- Testes unitarios implementados: 11
+- Testes de integracao implementados: 5
+- Testes de sistema implementados: 3
+- Tecnicas usadas:
+  Particionamento de Equivalencia
+  Fluxo nominal
+  Validacao de token JWT
+  Tratamento de erro interno
+- Codigos HTTP documentados:
+  200, 201, 400, 401, 409 e 500
+
+
+Testes Unitarios
+
+TU-01
+Regra: RN-AUTH-01 - Registo de utilizador com dados validos
+Endpoint/componente: POST /auth/register
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 201
+Resultado esperado: o utilizador e criado com sucesso e sao devolvidos accessToken e refreshToken.
+Pre-condicoes: nenhuma; repositorio em memoria limpo.
+
+TU-02
+Regra: RN-AUTH-02 - Email repetido deve ser rejeitado
+Endpoint/componente: POST /auth/register
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 409
+Resultado esperado: a operacao falha com "User already exists.".
+Pre-condicoes: ja existe um utilizador registado com o mesmo email.
+
+TU-03
+Regra: RN-AUTH-03 - Perfil tem de pertencer ao enum permitido
+Endpoint/componente: POST /auth/register
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando o perfil nao e TECHNICIAN, MANAGER ou ADMIN.
+Pre-condicoes: nenhuma.
+
+TU-04
+Regra: RN-AUTH-04 - Login com credenciais validas
+Endpoint/componente: POST /auth/login
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 200
+Resultado esperado: o login devolve o utilizador autenticado e um novo par de tokens.
+Pre-condicoes: utilizador previamente registado.
+
+TU-05
+Regra: RN-AUTH-05 - Password vazia deve ser rejeitada no login
+Endpoint/componente: POST /auth/login
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a autenticacao falha com "Password is required.".
+Pre-condicoes: utilizador previamente registado.
+
+TU-06
+Regra: RN-AUTH-06 - Login com password incorreta
+Endpoint/componente: POST /auth/login
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 401
+Resultado esperado: a autenticacao falha com "Invalid credentials.".
+Pre-condicoes: utilizador previamente registado.
+
+TU-07
+Regra: RN-AUTH-07 - Login com email nao existente
+Endpoint/componente: POST /auth/login
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 401
+Resultado esperado: a autenticacao falha com "Invalid credentials.".
+Pre-condicoes: o utilizador indicado nao existe no sistema.
+
+TU-08
+Regra: RN-AUTH-08 - Email com formato invalido
+Endpoint/componente: POST /auth/login
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a autenticacao falha com "Email is invalid.".
+Pre-condicoes: nenhuma.
+
+TU-09
+Regra: RN-AUTH-09 - Ambos os campos vazios no login
+Endpoint/componente: POST /auth/login
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a autenticacao falha com "Email and password are required.".
+Pre-condicoes: nenhuma.
+
+TU-10
+Regra: RN-AUTH-10 - Renovacao com refresh token valido
+Endpoint/componente: POST /auth/refresh
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 200
+Resultado esperado: sao devolvidos novos tokens e o refresh token anterior deixa de ser reutilizavel.
+Pre-condicoes: utilizador autenticado com refresh token emitido.
+
+TU-11
+Regra: RN-AUTH-11 - Renovacao sem refresh token
+Endpoint/componente: POST /auth/refresh
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a API responde com "Refresh token is required.".
+Pre-condicoes: nenhuma.
+
+
+Testes de Integracao
+
+TI-01
+Regra: RN-AUTH-12 - Endpoint protegido requer bearer token
+Endpoints exercitados: GET /users/me
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 401
+Resultado esperado: a API responde com erro de autorizacao se o token estiver ausente.
+Pre-condicoes: aplicacao iniciada.
+
+TI-02
+Regra: RN-AUTH-13 - Endpoint protegido aceita token JWT valido
+Endpoints exercitados: POST /auth/register + GET /users/me
+Tecnica: Fluxo nominal
+Codigo HTTP esperado: 200
+Resultado esperado: a API devolve os dados do utilizador autenticado quando recebe um bearer token JWT valido.
+Pre-condicoes: aplicacao iniciada e utilizador criado no proprio teste.
+
+TI-03
+Regra: RN-AUTH-14 - Endpoint protegido rejeita token JWT invalido
+Endpoints exercitados: GET /users/me
+Tecnica: Validacao de token JWT
+Codigo HTTP esperado: 401
+Resultado esperado: a API rejeita o acesso quando recebe um bearer token JWT invalido ou expirado.
+Pre-condicoes: aplicacao iniciada.
+
+TI-04
+Regra: RN-AUTH-15 - Endpoint protegido devolve os dados do utilizador autenticado apos registo
+Endpoints exercitados: POST /auth/register + GET /users/me
+Tecnica: Fluxo nominal
+Codigo HTTP esperado: 201 e 200
+Resultado esperado: a API responde com sucesso no registo e na consulta de /users/me.
+Pre-condicoes: aplicacao iniciada e utilizador criado no proprio teste.
+
+TI-05
+Regra: RN-AUTH-16 - Erro interno inesperado deve ser tratado pela API
+Endpoints exercitados: GET /users/me
+Tecnica: Tratamento de erro interno
+Codigo HTTP esperado: 500
+Resultado esperado: a API responde com "Internal server error." quando ocorre uma falha interna nao tratada.
+Pre-condicoes: aplicacao iniciada, utilizador autenticado e falha interna simulada no repositorio.
+
+
+Testes de Sistema
+
+TS-01
+Regra: RN-AUTH-17 - Fluxo completo de autenticacao
+Endpoints exercitados: POST /auth/register + POST /auth/login + GET /users/me
+Tecnica: Fluxo end-to-end
+Codigo HTTP esperado: 201, 200 e 200
+Resultado esperado: o utilizador e registado, autenticado e consegue consultar o proprio perfil com o token recebido.
+Estado: implementado.
+
+TS-02
+Regra: RN-AUTH-18 - Fluxo de renovacao de sessao
+Endpoints exercitados: POST /auth/register + POST /auth/refresh + GET /users/me
+Tecnica: Fluxo end-to-end
+Codigo HTTP esperado: 201, 200 e 200
+Resultado esperado: o utilizador obtem novos tokens atraves do refresh e continua a aceder ao endpoint protegido.
+Estado: implementado.
+
+TS-03
+Regra: RN-AUTH-19 - Controlo de acesso em fluxo realista
+Endpoints exercitados: GET /users/me
+Tecnica: Fluxo end-to-end
+Codigo HTTP esperado: 401
+Resultado esperado: o sistema impede acesso a recurso protegido quando o token esta ausente ou invalido.
+Estado: implementado.
+
+
+Observacoes
+
+- A numeracao segue o padrao do enunciado: TU para unidade, TI para integracao e TS para sistema.
+- Os testes unitarios focam-se na logica de autenticacao.
+- Os testes de integracao validam a interacao entre rotas, middleware e servicos.
+- Os testes de sistema foram implementados como fluxos end-to-end da autenticacao.
