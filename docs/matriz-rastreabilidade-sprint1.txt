@@ -113,6 +113,96 @@ Codigo HTTP esperado: 400
 Resultado esperado: a API responde com "Refresh token is required.".
 Pre-condicoes: nenhuma.
 
+TU-12
+
+Regra: RN-HERB-01 – Importação de ficheiro CSV válido
+Endpoint/componente: POST /herbs/import
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 200
+Resultado esperado: todas as linhas válidas são processadas corretamente.
+Pré-condições: ficheiro CSV válido com múltiplas linhas.
+
+TU-13
+
+Regra: RN-HERB-02 – Linhas inválidas devem ser contabilizadas
+Endpoint/componente: POST /herbs/import
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 200
+Resultado esperado: linhas inválidas são identificadas e contabilizadas corretamente.
+Pré-condições: ficheiro CSV com campos em falta.
+
+TU-14
+
+Regra: RN-HERB-03 – Ficheiro vazio deve ser rejeitado
+Endpoint/componente: POST /herbs/import
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 400
+Resultado esperado: a API responde com "File is empty.".
+Pré-condições: ficheiro vazio ou sem conteúdo útil.
+
+TU-15
+
+Regra: RN-HERB-04 – Ficheiro com linhas mistas (válidas e inválidas)
+Endpoint/componente: POST /herbs/import
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 200
+Resultado esperado: linhas válidas e inválidas são corretamente separadas e contabilizadas.
+Pré-condições: ficheiro CSV com dados parcialmente válidos.
+
+TU-16
+
+Regra: RN-PLAN-01 – Criação de plano válido
+Endpoint/componente: validador interno (planService.validate)
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 200
+Resultado esperado: plano válido é aceite e processado corretamente.
+Pré-condições: dados completos e dentro dos intervalos definidos.
+
+TU-17
+
+Regra: RN-PLAN-02 – Tipo de plano inválido
+Endpoint/componente: validador interno (planService.validate)
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 400
+Resultado esperado: a validação falha com "Invalid plan type".
+Pré-condições: tipo fora do conjunto permitido.
+
+TU-18
+
+Regra: RN-PLAN-03 – Validação de limites de temperatura
+Endpoint/componente: validador interno (planService.validate)
+Técnica: Análise de Valores Limite
+Código HTTP esperado: 400 / 200
+Resultado esperado: valores abaixo de 18 ou acima de 28 são rejeitados; valores dentro do intervalo são aceites.
+Pré-condições: plano com diferentes valores de temperatura.
+
+TU-19
+
+Regra: RN-PLAN-04 – Validação de limites de humidade
+Endpoint/componente: validador interno (planService.validate)
+Técnica: Análise de Valores Limite
+Código HTTP esperado: 400 / 200
+Resultado esperado: valores fora do intervalo [40, 80] são rejeitados.
+Pré-condições: plano com diferentes valores de humidade.
+
+TU-20
+
+Regra: RN-PLAN-05 – Plano pontual exige autorização
+Endpoint/componente: validador interno (planService.validate)
+Técnica: Condições Múltiplas (MC/DC)
+Código HTTP esperado: 403
+Resultado esperado: plano pontual sem autorização é rejeitado.
+Pré-condições: tipo "pontual" e ausência de autorização.
+
+TU-21
+
+Regra: RN-PLAN-06 – Plano pontual com autorização válida
+Endpoint/componente: validador interno (planService.validate)
+Técnica: Condições Múltiplas (MC/DC)
+Código HTTP esperado: 200
+Resultado esperado: plano pontual com autorização é aceite.
+Pré-condições: tipo "pontual" e autorização válida.
+
 
 Testes de Integracao
 
