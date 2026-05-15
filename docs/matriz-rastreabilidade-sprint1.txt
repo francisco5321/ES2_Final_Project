@@ -19,8 +19,10 @@ Resumo
   Fluxo nominal
   Validacao de token JWT
   Tratamento de erro interno
+  Análise de Valores Limite
+  Condições Múltiplas (MC/DC)
 - Codigos HTTP documentados:
-  200, 201, 400, 401, 409 e 500
+  200, 201, 400, 401, 403, 409, 500
 
 
 Testes Unitarios
@@ -269,6 +271,141 @@ Técnica: Condições Múltiplas (MC/DC)
 Código HTTP esperado: 200
 Resultado esperado: a classificação depende corretamente das condições (valor < min ou valor > max), garantindo que cada condição influencia o resultado de forma independente.
 Pré-condições: combinação de valores abaixo, dentro e acima do intervalo.
+
+TU-29
+
+Regra: RN-BATCH-01 - Lote deve estar associado a um plano
+Endpoint/componente: batchService.create
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando o plano nao e fornecido.
+Pre-condicoes: tentativa de criacao de lote sem planId.
+
+TU-30
+
+Regra: RN-BATCH-02 - Estado do lote deve pertencer ao enum permitido
+Endpoint/componente: batchService.create
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando o estado nao e ACTIVE, COMPLETED ou FAILED.
+Pre-condicoes: estado invalido.
+
+TU-31
+
+Regra: RN-BATCH-03 - Lote deve ter identificador unico
+Endpoint/componente: batchService.create
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando o id nao e fornecido.
+Pre-condicoes: tentativa de criacao sem id.
+
+TU-32
+
+Regra: RN-BATCH-04 - Produtividade deve ser positiva
+Endpoint/componente: batchService.create
+Tecnica: Analise de Valores Limite
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando a produtividade e negativa.
+Pre-condicoes: valor inferior a 0.
+
+TU-33
+
+Regra: RN-TASK-01 - Tarefa deve estar associada a um lote
+Endpoint/componente: taskService.execute
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando batchId nao e fornecido.
+Pre-condicoes: execucao sem batchId.
+
+TU-34
+
+Regra: RN-TASK-02 - Tipo de tarefa deve ser valido
+Endpoint/componente: taskService.execute
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando o tipo nao pertence ao conjunto permitido.
+Pre-condicoes: tipo invalido.
+
+TU-35
+
+Regra: RN-TASK-03 - Tarefa nao pode ser executada duas vezes
+Endpoint/componente: taskService.execute
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando a tarefa ja foi executada.
+Pre-condicoes: executed = true.
+
+TU-36
+
+Regra: RN-TASK-04 - Tarefa deve ter data de execucao
+Endpoint/componente: taskService.execute
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando a data nao e fornecida.
+Pre-condicoes: ausencia de date.
+
+TU-37
+
+Regra: RN-AUTO-01 - Sistema deve suportar modos validos
+Endpoint/componente: automationService.run
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando o modo nao e fornecido.
+Pre-condicoes: ausencia de mode.
+
+TU-38
+
+Regra: RN-AUTO-02 - Execucao automatica quando condicao e verdadeira
+Endpoint/componente: automationService.run
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 200
+Resultado esperado: a automacao e executada quando o modo e AUTOMATIC e a condicao e verdadeira.
+Pre-condicoes: mode = AUTOMATIC e condition = true.
+
+TU-39
+
+Regra: RN-AUTO-03 - Execucao proibida em modo manual
+Endpoint/componente: automationService.run
+Tecnica: Condicoes Multiplas (MC/DC)
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando o modo e MANUAL e a condicao e verdadeira.
+Pre-condicoes: mode = MANUAL e condition = true.
+
+TU-40
+
+Regra: RN-REPORT-01 - Exportacao de relatorios em formatos validos
+Endpoint/componente: reportService.generate
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 200
+Resultado esperado: o relatorio e gerado com sucesso em formato CSV ou EXCEL.
+Pre-condicoes: dados validos.
+
+TU-41
+
+Regra: RN-REPORT-03 - Nao e possivel gerar relatorio sem dados
+Endpoint/componente: reportService.generate
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha com "No data to export.".
+Pre-condicoes: lista de dados vazia.
+
+TU-42
+
+Regra: RN-AUDIT-01 - Registo de operacao valida
+Endpoint/componente: auditService.log
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 200
+Resultado esperado: o registo de auditoria e criado com sucesso com todos os campos.
+Pre-condicoes: user, action e timestamp fornecidos.
+
+TU-43
+
+Regra: RN-AUDIT-02 - Campos obrigatorios no registo de auditoria
+Endpoint/componente: auditService.log
+Tecnica: Particionamento de Equivalencia
+Codigo HTTP esperado: 400
+Resultado esperado: a operacao falha quando algum campo obrigatorio esta em falta.
+Pre-condicoes: ausencia de user, action ou timestamp.
 
 Testes de Integracao
 
