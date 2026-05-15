@@ -113,6 +113,8 @@ Codigo HTTP esperado: 400
 Resultado esperado: a API responde com "Refresh token is required.".
 Pre-condicoes: nenhuma.
 
+// Sprint 2
+
 TU-12
 
 Regra: RN-HERB-01 – Importação de ficheiro CSV válido
@@ -203,6 +205,70 @@ Código HTTP esperado: 200
 Resultado esperado: plano pontual com autorização é aceite.
 Pré-condições: tipo "pontual" e autorização válida.
 
+// Sprint 3
+
+TU-22
+
+Regra: RN-MEAS-01 – Medição com dados válidos
+Endpoint/componente: validador interno (measurementService.validate)
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 200
+Resultado esperado: a medição é considerada válida quando todos os campos estão presentes.
+Pré-condições: objeto com temperatura, humidade e luminosidade definidos.
+
+TU-23
+
+Regra: RN-MEAS-02 – Medição com dados em falta
+Endpoint/componente: validador interno (measurementService.validate)
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 400
+Resultado esperado: a validação falha com "Missing measurement data.".
+Pré-condições: ausência de pelo menos um dos campos obrigatórios.
+
+TU-24
+
+Regra: RN-ALERT-01 – Valor dentro do intervalo não gera alerta
+Endpoint/componente: classificador interno (alertService.classify)
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 200
+Resultado esperado: classificação "OK" quando o valor está dentro dos limites.
+Pré-condições: valor entre min e max.
+
+TU-25
+
+Regra: RN-ALERT-02 – Valor abaixo do limite mínimo
+Endpoint/componente: classificador interno (alertService.classify)
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 200
+Resultado esperado: classificação "CRITICAL" quando o valor é inferior ao mínimo.
+Pré-condições: valor < min.
+
+TU-26
+
+Regra: RN-ALERT-03 – Valor acima do limite máximo
+Endpoint/componente: classificador interno (alertService.classify)
+Técnica: Particionamento de Equivalência
+Código HTTP esperado: 200
+Resultado esperado: classificação "WARNING" quando o valor excede o máximo.
+Pré-condições: valor > max.
+
+TU-27
+
+Regra: RN-ALERT-04 – Validação de valores limite
+Endpoint/componente: classificador interno (alertService.classify)
+Técnica: Análise de Valores Limite
+Código HTTP esperado: 200
+Resultado esperado: valores exatamente iguais aos limites mínimo e máximo são considerados válidos ("OK").
+Pré-condições: valor = min e valor = max.
+
+TU-28
+
+Regra: RN-ALERT-05 – Classificação baseada em condições múltiplas
+Endpoint/componente: classificador interno (alertService.classify)
+Técnica: Condições Múltiplas (MC/DC)
+Código HTTP esperado: 200
+Resultado esperado: a classificação depende corretamente das condições (valor < min ou valor > max), garantindo que cada condição influencia o resultado de forma independente.
+Pré-condições: combinação de valores abaixo, dentro e acima do intervalo.
 
 Testes de Integracao
 
